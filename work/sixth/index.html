@@ -15,7 +15,87 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
-    // 回答はここに書いてね
+    $(function() {
+      // ポケモン情報を取得する
+      $(".btn").click(function() {
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon/1',
+          method: 'GET'
+        }).done(function(res) {
+          // encountHtmlを画面に表示
+          $(".btn").before(encountHtml);
+          // encountHtmlのimgタグに画像を挿入
+          $(".img").attr("src", res.sprites.front_default); // 第一引数の属性に第二引数の値を設定
+        }).fail(function(err) {
+          $(".btn").before(failHtml);
+        });
+
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon-species/1',
+          method: 'GET'
+        }).done(function(res) {
+          // encountHtmlのpタグに名前を挿入
+          $(".name").text(res.names[0].name);
+        }).fail(function(err) {
+        });
+
+        // $.get('https://pokeapi.co/api/v2/pokemon/1', encountPokemon()
+        //   // alert("Data: " + data + "\nStatus: " + status);
+        //   // alert(encountHtml);
+        // );
+      });
+
+
+
+      function encountPokemon() {
+        console.log(res.species.url);
+        console.log(res.sprites.front_default);
+        // console.log();
+        $(".btn").before(encountHtml);
+      };
+      // 「捕まえる」失敗時の画面表示
+      let failHtml =
+      `
+        <p class="text">逃げられてしまった...</p>
+        <button class="btn mt" data-js="reset">戻る</button>
+      `
+
+      // 「ポケモンを探す」後の画面表示
+      let encountHtml =
+      `
+        <p class="name"></p>
+        <div>
+          <img class="img" src="" alt="">
+        </div>
+        <div>
+          <button class="btn" id="catch">捕まえる</button>
+          <button class="btn" data-js="reset">逃げる</button>
+        </div>
+      `
+
+      // 「捕まえる」成功時の画面表示
+      let doneHtml =
+      `
+        <p class="name">ゲットしました</p>
+        <div>
+          <img class="img" src="" alt="">
+        </div>
+        <button class="btn" data-js="reset">戻る</button>
+      `
+
+
+
+    });
+
+
+    // モンスターの取得
+'https://pokeapi.co/api/v2/pokemon/1'
+
+// モンスターボールの取得
+'https://pokeapi.co/api/v2/item/4'
+
+
+
   </script>
 </body>
 </html>
