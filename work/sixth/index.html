@@ -16,43 +16,7 @@
   <script src="../../common/js/jquery.js"></script>
   <script>
     $(function() {
-      // ポケモン情報を取得する
-      $(".btn").click(function() {
-        $.ajax({
-          url: 'https://pokeapi.co/api/v2/pokemon/1',
-          method: 'GET'
-        }).done(function(res) {
-          // encountHtmlを画面に表示
-          $(".btn").before(encountHtml);
-          // encountHtmlのimgタグに画像を挿入
-          $(".img").attr("src", res.sprites.front_default); // 第一引数の属性に第二引数の値を設定
-        }).fail(function(err) {
-          $(".btn").before(failHtml);
-        });
 
-        $.ajax({
-          url: 'https://pokeapi.co/api/v2/pokemon-species/1',
-          method: 'GET'
-        }).done(function(res) {
-          // encountHtmlのpタグに名前を挿入
-          $(".name").text(res.names[0].name);
-        }).fail(function(err) {
-        });
-
-        // $.get('https://pokeapi.co/api/v2/pokemon/1', encountPokemon()
-        //   // alert("Data: " + data + "\nStatus: " + status);
-        //   // alert(encountHtml);
-        // );
-      });
-
-
-
-      function encountPokemon() {
-        console.log(res.species.url);
-        console.log(res.sprites.front_default);
-        // console.log();
-        $(".btn").before(encountHtml);
-      };
       // 「捕まえる」失敗時の画面表示
       let failHtml =
       `
@@ -83,19 +47,92 @@
         <button class="btn" data-js="reset">戻る</button>
       `
 
+      // 「戻る」「逃げる」の画面表示
+      let searchHtml =
+      `
+        <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+      `
 
+      // 検索ボタン
+      $(document).on("click", "#pokemon_search", function() {
+
+        // 1〜151のランダムなポケモン
+        let pokedexNum = Math.floor(Math.random() * 151) + 1;
+
+        $.ajax({
+          url: `https://pokeapi.co/api/v2/pokemon/${pokedexNum}`,
+          method: 'GET'
+        })
+
+        .done(function(res) {
+          
+          // エンカウント画面表示
+          $(".wrapper").html(encountHtml);
+          // ポケモン画像表示
+          $(".img").attr("src", res.sprites.front_default);
+          // ポケモン名表示
+          // $(".name").text(res.name);
+
+          // ポケモン名の日本語を取得
+          $.ajax({
+            url: res.species.url,
+            method: 'GET'
+          })
+
+          .done(function(speciesRes) {
+
+            let japaneseName = speciesRes.names.find(function(nameData) {
+              return nameData.language.name === "ja";
+            });
+
+            $(".name").text(japaneseName.name);
+          })
+        })
+
+        .fail(function(err) {
+          console.error(err);
+        });
+      });
+
+      // 捕まえるボタン
+      $(document).on("click", "#catch", function() {
+
+        // 50%成功
+        let isSuccess = Math.random() < 0.5;
+
+        if (isSuccess) {
+
+          // 成功時モンスターボール取得
+          $.ajax({
+            url: 'https://pokeapi.co/api/v2/item/4',
+            method: 'GET'
+          })
+
+          .done(function(res) {
+
+            $(".wrapper").html(doneHtml);
+            
+            // モンスターボール画像表示
+            $(".img").attr("src", res.sprites.default);
+          })
+
+          .fail(function(err) {
+            console.error(err);
+          });
+
+        } else {
+
+          // 失敗画面表示
+          $(".wrapper").html(failHtml);
+        }
+      });
+
+      $(document).on("click", '[data-js="reset"]', function() {
+
+        $(".wrapper").html(searchHtml);
+      });
 
     });
-
-
-    // モンスターの取得
-'https://pokeapi.co/api/v2/pokemon/1'
-
-// モンスターボールの取得
-'https://pokeapi.co/api/v2/item/4'
-
-
-
   </script>
 </body>
 </html>
