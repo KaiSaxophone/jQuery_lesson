@@ -53,6 +53,34 @@
         <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
       `
 
+      // wrapper内の表示切替
+      function displayHtml(html) {
+        return $(".wrapper").html(html);
+      }
+
+      // 画像の挿入
+      function getImage(source) {
+        return $(".img").attr("src", source);
+      }
+
+      // ポケモン名の日本語を取得
+      function getJapaneseName(res) {
+        $.ajax({
+          url: res.species.url,
+          method: 'GET'
+        })
+
+        .done(function(speciesRes) {
+
+          let japaneseName = speciesRes.names.find(function(nameData) {
+            return nameData.language.name === "ja";
+          });
+
+          return $(".name").text(japaneseName.name);
+        })
+      }
+
+
       // 検索ボタン
       $(document).on("click", "#pokemon_search", function() {
 
@@ -67,26 +95,11 @@
         .done(function(res) {
           
           // エンカウント画面表示
-          $(".wrapper").html(encountHtml);
+          displayHtml(encountHtml);
           // ポケモン画像表示
-          $(".img").attr("src", res.sprites.front_default);
+          getImage(res.sprites.front_default);
           // ポケモン名表示
-          // $(".name").text(res.name);
-
-          // ポケモン名の日本語を取得
-          $.ajax({
-            url: res.species.url,
-            method: 'GET'
-          })
-
-          .done(function(speciesRes) {
-
-            let japaneseName = speciesRes.names.find(function(nameData) {
-              return nameData.language.name === "ja";
-            });
-
-            $(".name").text(japaneseName.name);
-          })
+          getJapaneseName(res);
         })
 
         .fail(function(err) {
@@ -110,10 +123,11 @@
 
           .done(function(res) {
 
-            $(".wrapper").html(doneHtml);
-            
+            // 成功画面表示
+            displayHtml(doneHtml);
             // モンスターボール画像表示
-            $(".img").attr("src", res.sprites.default);
+            getImage(res.sprites.default);
+            
           })
 
           .fail(function(err) {
@@ -123,13 +137,13 @@
         } else {
 
           // 失敗画面表示
-          $(".wrapper").html(failHtml);
+          displayHtml(failHtml);
         }
       });
 
+      // 逃げる、戻るボタン
       $(document).on("click", '[data-js="reset"]', function() {
-
-        $(".wrapper").html(searchHtml);
+        displayHtml(searchHtml);
       });
 
     });
