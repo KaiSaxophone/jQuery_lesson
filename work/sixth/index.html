@@ -15,7 +15,138 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
-    // 回答はここに書いてね
+    $(function() {
+
+      // 「捕まえる」失敗時の画面表示
+      let failHtml =
+      `
+        <p class="text">逃げられてしまった...</p>
+        <button class="btn mt" data-js="reset">戻る</button>
+      `
+
+      // 「ポケモンを探す」後の画面表示
+      let encountHtml =
+      `
+        <p class="name"></p>
+        <div>
+          <img class="img" src="" alt="">
+        </div>
+        <div>
+          <button class="btn" id="catch">捕まえる</button>
+          <button class="btn" data-js="reset">逃げる</button>
+        </div>
+      `
+
+      // 「捕まえる」成功時の画面表示
+      let doneHtml =
+      `
+        <p class="name">ゲットしました</p>
+        <div>
+          <img class="img" src="" alt="">
+        </div>
+        <button class="btn" data-js="reset">戻る</button>
+      `
+
+      // 「戻る」「逃げる」の画面表示
+      let searchHtml =
+      `
+        <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+      `
+
+      // wrapper内の表示切替
+      function displayHtml(html) {
+        return $(".wrapper").html(html);
+      }
+
+      // 画像の挿入
+      function getImage(source) {
+        return $(".img").attr("src", source);
+      }
+
+      // ポケモン名の日本語を取得
+      function getJapaneseName(res) {
+        $.ajax({
+          url: res.species.url,
+          method: 'GET'
+        })
+
+        .done(function(speciesRes) {
+
+          let japaneseName = speciesRes.names.find(function(nameData) {
+            return nameData.language.name === "ja";
+          });
+
+          return $(".name").text(japaneseName.name);
+        })
+      }
+
+
+      // 検索ボタン
+      $(document).on("click", "#pokemon_search", function() {
+
+        // 1〜151のランダムなポケモン
+        let pokedexNum = Math.floor(Math.random() * 151) + 1;
+
+        $.ajax({
+          url: `https://pokeapi.co/api/v2/pokemon/${pokedexNum}`,
+          method: 'GET'
+        })
+
+        .done(function(res) {
+          
+          // エンカウント画面表示
+          displayHtml(encountHtml);
+          // ポケモン画像表示
+          getImage(res.sprites.front_default);
+          // ポケモン名表示
+          getJapaneseName(res);
+        })
+
+        .fail(function(err) {
+          console.error(err);
+        });
+      });
+
+      // 捕まえるボタン
+      $(document).on("click", "#catch", function() {
+
+        // 50%成功
+        let isSuccess = Math.random() < 0.5;
+
+        if (isSuccess) {
+
+          // 成功時モンスターボール取得
+          $.ajax({
+            url: 'https://pokeapi.co/api/v2/item/4',
+            method: 'GET'
+          })
+
+          .done(function(res) {
+
+            // 成功画面表示
+            displayHtml(doneHtml);
+            // モンスターボール画像表示
+            getImage(res.sprites.default);
+            
+          })
+
+          .fail(function(err) {
+            console.error(err);
+          });
+
+        } else {
+
+          // 失敗画面表示
+          displayHtml(failHtml);
+        }
+      });
+
+      // 逃げる、戻るボタン
+      $(document).on("click", '[data-js="reset"]', function() {
+        displayHtml(searchHtml);
+      });
+
+    });
   </script>
 </body>
 </html>
