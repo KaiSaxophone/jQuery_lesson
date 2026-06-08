@@ -107,9 +107,7 @@
 
         function filterList(lang) {
           $(".list").children("li").each(function() {
-            if (lang === "all") {
-              $(this).show();
-            } else if (lang === $(this).data('category-type')) {
+            if (lang === "all" || lang === $(this).data('category-type')) {
               $(this).show();
             } else {
               $(this).hide();
